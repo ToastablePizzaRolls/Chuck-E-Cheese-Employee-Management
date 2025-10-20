@@ -69,23 +69,54 @@ class App:
 
     def add_employee(self):
         try:
-            emp = Employee(
-                EmpID=int(self.empid_var.get()),
-                FName=self.fname_var.get(),
-                LName=self.lname_var.get(),
-                PayRate=float(self.payrate_var.get())
-            )
+            emp_id = int(self.empid_var.get())
+            fname = self.fname_var.get().strip()
+            lname = self.lname_var.get().strip()
+            payrate = float(self.payrate_var.get())
         except ValueError:
-            messagebox.showerror("Input Error", "Please enter valid data.")
+            messagebox.showerror("Input Error", "Please enter valid data for all fields.")
             return
 
+    # Validate required fields
+        if not fname or not lname:
+            messagebox.showerror("Missing Data", "First and last name cannot be empty.")
+            return
+
+    # Check for duplicate Employee ID before inserting
+        existing = self.db.get_employee(emp_id)
+        if existing:
+            messagebox.showerror("Duplicate ID", f"Employee ID {emp_id} already exists. Please choose another ID.")
+            return
+
+    # Construct Employee object
+        emp = Employee(EmpID=emp_id, FName=fname, LName=lname, PayRate=payrate)
+
+    # Attempt to add to DB
         if self.db.add_employee(emp):
-            messagebox.showinfo("Success", "Employee added successfully.")
-            self.reset_empid()
+            messagebox.showinfo("Success", f"Employee {fname} {lname} added successfully.")
             self.clear_entries()
+            self.empid_var.set("")  # Clear ID so next add auto-generates
+            self.reset_empid()      # Trigger next available ID
             self.show_report()
         else:
-            messagebox.showerror("Error", "Failed to add employee.")
+            messagebox.showerror("Database Error", "Failed to add employee to the database.")
+
+    def query_employee(self):
+        try:
+            emp_id = int(self.empid_var.get())
+        except ValueError:
+            messagebox.showerror("Input Error", "Please enter a valid Employee ID.")
+            return
+
+        row = self.db.get_employee(emp_id)
+        if row:
+            _, empid, fname, lname, payrate = row
+            self.empid_var.set(str(empid))
+            self.fname_var.set(fname)
+            self.lname_var.set(lname)
+            self.payrate_var.set(str(payrate))
+        else:
+            messagebox.showinfo("Not Found", f"No employee found with EmpID {emp_id}.")
 
     def query_employee(self):
         try:
@@ -164,4 +195,5 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = App(root)
     root.mainloop()
+
 
