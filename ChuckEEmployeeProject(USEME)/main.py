@@ -28,7 +28,7 @@ class App:
         # Labels and entry fields
         tk.Label(self.root, text="Employee ID:").grid(row=0, column=0, sticky=tk.W)
         self.empid_var = tk.StringVar()
-        self.empid_entry = tk.Entry(self.root, textvariable=self.empid_var, state='readonly')
+        self.empid_entry = tk.Entry(self.root, textvariable=self.empid_var)
         self.empid_entry.grid(row=0, column=1)
 
         tk.Label(self.root, text="First Name:").grid(row=1, column=0, sticky=tk.W)
@@ -164,3 +164,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = App(root)
     root.mainloop()
+
